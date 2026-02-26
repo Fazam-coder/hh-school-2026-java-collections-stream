@@ -2,8 +2,8 @@ package tasks;
 
 import common.Person;
 import common.PersonService;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /*
@@ -23,6 +23,11 @@ public class Task1 {
 
   public List<Person> findOrderedPersons(List<Integer> personIds) {
     Set<Person> persons = personService.findPersons(personIds);
-    return Collections.emptyList();
+    // Асимптотика: O(n^2), т.к. для каждого id мы за линейное время находим Person
+    return personIds.stream()
+            .map(id -> persons.stream()
+                    .filter(p -> Objects.equals(p.id(), id))
+                    .findFirst().get()
+            ).toList();
   }
 }
