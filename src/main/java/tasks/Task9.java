@@ -48,7 +48,7 @@ public class Task9 {
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
     // Используем Stream API и получаем решение в 1 строку
     // Изначально в коде в качестве значения было convertPersonToString, поэтому я его оставил
-    return persons.stream().collect(Collectors.toMap(Person::id, this::convertPersonToString));
+    return persons.stream().collect(Collectors.toMap(Person::id, this::convertPersonToString, (a, b) -> a));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
