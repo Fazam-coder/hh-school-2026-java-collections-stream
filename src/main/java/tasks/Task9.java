@@ -53,11 +53,12 @@ public class Task9 {
 
   // есть ли совпадающие в двух коллекциях персоны?
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    // Объединили 2 коллекции в Set, если длина Set равна сумме длин persons1 и persons2, тогда повторяющихся нет
-    Set<Person> persons = Stream.of(persons1, persons2)
-            .flatMap(Collection::stream)
-            .collect(Collectors.toSet());
-    return persons.size() != persons1.size() + persons2.size();
+    // Из 1 коллекции построили HashSet (поиск за O(1)) и прошлись по 2 с помощью stream
+    Set<Person> personsHash1 = new HashSet<>(persons1);
+    return persons2.stream()
+            .filter(personsHash1::contains)
+            .findAny()
+            .isPresent();
   }
 
   // Посчитать число четных чисел

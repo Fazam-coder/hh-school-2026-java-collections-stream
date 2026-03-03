@@ -20,17 +20,11 @@ public class Task6 {
                                                   Map<Integer, Set<Integer>> personAreaIds,
                                                   Collection<Area> areas) {
     Map<Integer, String> areaIdsNames = areas.stream().collect(Collectors.toMap(Area::getId, Area::getName));
-    // Map<Имя, Set<регион>>
-    Map<String, Set<String>> personAreaNames = persons.stream()
-            .collect(Collectors.toMap(
-                    Person::firstName,
-                    person -> personAreaIds.get(person.id()).stream()
+    return persons.stream()
+            .flatMap(person ->
+                    personAreaIds.getOrDefault(person.id(), Set.of()).stream()
                             .map(areaIdsNames::get)
-                            .collect(Collectors.toSet())
-            ));
-    return personAreaNames.entrySet().stream()
-            .flatMap(entry -> entry.getValue().stream()
-                    .map(value -> entry.getKey() + " - " + value))
+                            .map(area -> person.firstName() + " - " + area))
             .collect(Collectors.toSet());
   }
 }
