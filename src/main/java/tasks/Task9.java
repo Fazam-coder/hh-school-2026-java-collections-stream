@@ -4,7 +4,6 @@ import common.Person;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,68 +25,53 @@ public class Task9 {
   // Костыль, эластик всегда выдает в топе "фальшивую персону".
   // Конвертируем начиная со второй
   public List<String> getNames(List<Person> persons) {
-    if (persons.size() == 0) {
-      return Collections.emptyList();
-    }
-    persons.remove(0);
-    return persons.stream().map(Person::firstName).collect(Collectors.toList());
+    // Используем skip(1) - пропустить 1 элемент в stream, валидация на пустой список тогда не нужна
+    return persons.stream().skip(1).map(Person::firstName).collect(Collectors.toList());
   }
 
   // Зачем-то нужны различные имена этих же персон (без учета фальшивой разумеется)
   public Set<String> getDifferentNames(List<Person> persons) {
-    return getNames(persons).stream().distinct().collect(Collectors.toSet());
+    // Не нужен distinct, т.к. возвращаем Set, и stream() тоже не нужен, т.к. нет промежуточных операций
+    return new HashSet<>(getNames(persons));
   }
 
   // Тут фронтовая логика, делаем за них работу - склеиваем ФИО
   public String convertPersonToString(Person person) {
-    String result = "";
-    if (person.secondName() != null) {
-      result += person.secondName();
-    }
-
-    if (person.firstName() != null) {
-      result += " " + person.firstName();
-    }
-
-    if (person.secondName() != null) {
-      result += " " + person.secondName();
-    }
-    return result;
+    // Переписал с помощью Stream API, с помощью  filter убрал null и использовал Collectors.joining(" ")
+    // Странно выводить 2 раза secondName, если у нас также хранится middleName
+    return Stream.of(person.secondName(), person.firstName(), person.middleName())
+            .filter(p -> p != null)
+            .collect(Collectors.joining(" "));
   }
 
   // словарь id персоны -> ее имя
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    Map<Integer, String> map = new HashMap<>(1);
-    for (Person person : persons) {
-      if (!map.containsKey(person.id())) {
-        map.put(person.id(), convertPersonToString(person));
-      }
-    }
-    return map;
+    // Используем Stream API и получаем решение в 1 строку
+    // Изначально в коде в качестве значения было convertPersonToString, поэтому я его оставил
+    return persons.stream().collect(Collectors.toMap(Person::id, this::convertPersonToString, (a, b) -> a));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    boolean has = false;
-    for (Person person1 : persons1) {
-      for (Person person2 : persons2) {
-        if (person1.equals(person2)) {
-          has = true;
-        }
-      }
-    }
-    return has;
+    // Из 1 коллекции построили HashSet (поиск за O(1)) и прошлись по 2 с помощью stream
+    Set<Person> personsHash1 = new HashSet<>(persons1);
+    return persons2.stream().anyMatch(personsHash1::contains);
   }
 
   // Посчитать число четных чисел
   public long countEven(Stream<Integer> numbers) {
-    count = 0;
-    numbers.filter(num -> num % 2 == 0).forEach(num -> count++);
+    // Вместо forEach используем count - количество элементов в Stream
+    // Можно было бы написать в 1 строку, но допустим, что нам нужно поле count
+    count = numbers.filter(num -> num % 2 == 0).count();
     return count;
   }
 
   // Загадка - объясните почему assert тут всегда верен
   // Пояснение в чем соль - мы перетасовали числа, обернули в HashSet, а toString() у него вернул их в сортированном порядке
+  /* hashcode() для Integer - значение самого Integer, когда мы создаем HashSet, изначально он создается с 16 buckets
+  // и увеличивается до тех пор, пока будет заполнено не более 75%, получается, каждое число будет в своем отдельном bucket.
+  // toString будет проходиться по ним, то есть всегда в отсортированном порядке
+   */
   void listVsSet() {
     List<Integer> integers = IntStream.rangeClosed(1, 10000).boxed().collect(Collectors.toList());
     List<Integer> snapshot = new ArrayList<>(integers);
