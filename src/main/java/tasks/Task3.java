@@ -12,11 +12,15 @@ import java.util.List;
 public class Task3 {
 
   public static List<Person> sort(Collection<Person> persons) {
+    if (persons == null) {
+      return List.of();
+    }
     return persons.stream()
-            .sorted(Comparator
-                    .comparing(Person::firstName)
-                    .thenComparing(Person::secondName)
-                    .thenComparing(Person::createdAt))
+            .sorted(Comparator.nullsLast(
+                    Comparator.comparing(Person::firstName, Comparator.nullsLast(Comparator.naturalOrder()))
+                            .thenComparing(Person::secondName, Comparator.nullsLast(Comparator.naturalOrder()))
+                            .thenComparing(Person::createdAt, Comparator.nullsLast(Comparator.naturalOrder()))
+            ))
             .toList();
   }
 }

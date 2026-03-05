@@ -30,8 +30,7 @@ public class Task1 {
             .collect(Collectors.toMap(
                     Person::id,
                     Function.identity(),
-                    (a, b) -> a,
-                    HashMap::new
+                    (a, b) -> a
             ));
     return personIds.stream()
             .map(personsMap::get)

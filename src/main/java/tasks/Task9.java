@@ -55,10 +55,7 @@ public class Task9 {
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
     // Из 1 коллекции построили HashSet (поиск за O(1)) и прошлись по 2 с помощью stream
     Set<Person> personsHash1 = new HashSet<>(persons1);
-    return persons2.stream()
-            .filter(personsHash1::contains)
-            .findAny()
-            .isPresent();
+    return persons2.stream().anyMatch(personsHash1::contains);
   }
 
   // Посчитать число четных чисел
